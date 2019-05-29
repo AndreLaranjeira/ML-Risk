@@ -1,0 +1,5 @@
+# Project environment files:
+.vscode
+
+# Program compilation cache:
+src/__pycache__
