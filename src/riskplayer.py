@@ -60,6 +60,17 @@ class RiskPlayer(object):
     def reinforcements(self):
         return max(self.territory_count//3, 3) + sum(a.value for a in self.areas)
 
+    # Methods:
+    def canAttack(self):
+        for territory in self.territories:
+            # If even a single territory has a target on it's border and more
+            # than one troop, we can still attack!
+            if(territory.forces > 1 and territory.border):
+                return True
+
+        # Else, we cannot attack.
+        return False
+
     # Overwriting default object methods:
     def __repr__(self):
         return "P;%s" % (self.name)
@@ -68,12 +79,12 @@ class RiskPlayer(object):
         return hash(("player", self.name))
 
     def __eq__(self, other):
-        if isinstance(other, Player):
+        if isinstance(other, RiskPlayer):
             return self.name == other.name
         return False
 
     def __deepcopy__(self, memo):
-        newobj = Player(self.name, self, lambda *x, **y: None, {})
+        newobj = RiskPlayer(self.name, self, lambda *x, **y: None, {})
         newobj.color = self.color
         newobj.world = deepcopy(self.world, memo)
         return newobj
