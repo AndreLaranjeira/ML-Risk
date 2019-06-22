@@ -192,14 +192,14 @@ class RiskEnv(gym.Env):
             if(self.game_phase == 1):
 
                 # Make all the players that aren't the Agent play:
-                while((self.player.name != "Agent") and
+                while((self.board.player.name != "Agent") and
                       (not self.board.finishedInitialPlacement())):
                     self.board.initialPlacement()
 
                 if(not self.board.finishedInitialPlacement()):
 
                     # Make the Agent play:
-                    country = _actionToCountry(action[0])
+                    country = self._actionToCountry(action[0])
 
                     # Did he play a valid move? If yes:
                     if(self.board.initialPlacement(country) == 0):
@@ -241,7 +241,7 @@ class RiskEnv(gym.Env):
             if(self.game_phase == 3):
 
                 # Ok, the Agent gets to reinforce. Use 1 troop!
-                country = _actionToCountry(action[0])
+                country = self._actionToCountry(action[0])
 
                 # Was the reinforcement valid? If yes:
                 if(self.board.reinforce(country, 1) == 0):
@@ -263,8 +263,8 @@ class RiskEnv(gym.Env):
             if(self.game_phase == 4):
 
                 # Ok, the Agent gets to attack or to pass the turn.
-                src = _actionToCountry(action[0])
-                target = _actionToCountry(action[1])
+                src = self._actionToCountry(action[0])
+                target = self._actionToCountry(action[1])
                 stop_flag = True if action[2] == 1 else False
 
                 # Did the Agent stop the attack or run out of troops?
