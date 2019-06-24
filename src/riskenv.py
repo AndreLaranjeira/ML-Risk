@@ -45,7 +45,7 @@ class RiskEnv(gym.Env):
         self.action_space = spaces.Tuple((
             spaces.Discrete(42),    # Country 1.
             spaces.Discrete(42),    # Country 2.
-            spaces.Discrete(1)      # Flag.
+            spaces.Discrete(2)      # Flag.
         ))
 
         # Observation state:
