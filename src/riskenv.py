@@ -215,7 +215,7 @@ class RiskEnv(gym.Env):
                         return (self._getObs(), INVALID_ACTION, True, info)
 
                 else:
-                    self.game_phase == 2
+                    self.game_phase = 2
 
             # Enemy turn phase:
             if(self.game_phase == 2):

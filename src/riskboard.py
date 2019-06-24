@@ -79,7 +79,11 @@ class RiskBoard(object):
     # General game methods:
 
     ## Attack method:
-    def attack(self, src, target, f_atk=None, f_move=None):
+    def attack(self, src_c, target_c, f_atk=None, f_move=None):
+
+        # Get the territories:
+        src = self.world.territory(src_c)
+        target = self.world.territory(target_c)
 
         # Check to see if the attack is valid:
         if src is None:

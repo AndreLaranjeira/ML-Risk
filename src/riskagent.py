@@ -6,9 +6,10 @@ from keras.layers import Dense, Activation, Flatten
 from keras.optimizers import Adam
 
 from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy
+from rl.policy import EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from riskenv import *
+import time
 
 class ActionObservationWrapper(gym.Wrapper):
 
@@ -79,17 +80,18 @@ class DqnAgent(object):
     self.observation_space = env.observation_space
     model = Sequential()
     model.add(Flatten(input_shape=(1,len(self.observation_space))))
+    model.add(Dense(200))
+    model.add(Activation('relu'))
     model.add(Dense(100))
     model.add(Activation('relu'))
-    model.add(Dense(50))
-    model.add(Activation('relu'))
-    model.add(Dense(50))
+    model.add(Dense(42))
     model.add(Activation('relu'))
     model.add(Dense(nb_actions))
-    model.add(Activation('linear'))
+    model.add(Activation('softmax'))
     print(model.summary())
     memory = SequentialMemory(limit=50000,window_length=1)
-    policy = BoltzmannQPolicy()
+    # policy = BoltzmannQPolicy()
+    policy = EpsGreedyQPolicy(eps=.2)
     dqn = DQNAgent(
       model=model,
       nb_actions=nb_actions,
@@ -106,7 +108,11 @@ class DqnAgent(object):
       nb_steps=50000,
       visualize=False,
       verbose=0):
+    start = time.time()
     self.dqn.fit(env, nb_steps=nb_steps, visualize=visualize, verbose=verbose)
+    end = time.time()
+    diff = end-start
+    print('Training took {} minutes and {:.3f} seconds'.format(int(diff//60), diff % 60))
 
   def test(self,
       env:gym.Env,
@@ -115,5 +121,12 @@ class DqnAgent(object):
       verbose=0):
     self.dqn.test(env, nb_episodes=nb_episodes, visualize=visualize, verbose=verbose)
 
-  def save():
-    self.dqn.save_weights('dqn_{}_weights.h5f'.format(ENV_NAME), overwrite=True)
+  def save(self, name):
+    self.dqn.save_weights('models/dqn_{}_weights.h5f'.format(name), overwrite=True)
+    for layer in self.dqn.layers:
+      print(layer.get_weights())
+
+  def load(self, name):
+    self.dqn.load_weights('models/dqn_{}_weights.h5f'.format(name))
+    for layer in self.dqn.layers:
+      print(layer.get_weights())
