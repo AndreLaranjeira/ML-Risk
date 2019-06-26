@@ -290,7 +290,7 @@ class RiskEnv(gym.Env):
                             return (self._getObs(), REWARD_WIN, True, info)
 
                         # Agent didn't win:
-                        # (The code should execute this due to it's logic!)
+                        # (The code should not execute this due to it's logic!)
                         elif(end_info[0] == True):
                             return (self._getObs(), REWARD_LOSE, True, info)
 
@@ -375,3 +375,91 @@ class RiskEnv(gym.Env):
     ## Check if the Agent is still alive:
     def _isAgentAlive(self):
         return self.board.players["Agent"].alive
+
+## Class to represent the OpenAI gym environment for the attack scenario in a
+## Risk game.
+class RiskAttackEnv(RiskEnv):
+
+    # Reset board method:
+    def reset(self):
+        # Create a new board for the players:
+        self.board = RiskBoard()
+
+        # Add the player information for the agent:
+        self.board.addPlayer("Agent", "Agent")
+
+        # Add the player information for the opponents:
+        for opponent in self.opponents:
+            self.board.addPlayer(opponent.name, opponent.type, opponent.ai)
+
+        # Start the game:
+        self.board.start()
+
+        # Make all the players do the initial reinforcement:
+        while(not self.board.finishedInitialPlacement()):
+
+            # Rule for the players that aren't the Agent:
+            if(self.board.player.name != "Agent"):
+                self.board.initialPlacement()
+
+            # Rule for the Agent:
+            else:
+                while(self.board.initial_troops["Agent"] != 0):
+                    self.board.initialPlacement(self._borderTerritory());
+
+        # Wait for the Agent's turn:
+        while(self.board.player.name != "Agent"):
+            self.board.fullTurn()   # Have the next player play.
+
+        # Reinforce for the Agent:
+        self.available_troops = self.board.player.reinforcements
+
+        while(self.available_troops != 0):
+            self.board.reinforce(self._borderTerritory(), 1)
+            self.available_troops -= 1
+
+        # Set the game state to the attack phase:
+        self.game_phase = 4
+
+        return self._getObs()
+
+    # Learning step method:
+    def step(self, action):
+        assert self.action_space.contains(action)
+
+        # Set the info return to an empty dictionary (it won't be needed):
+        info = dict()
+
+        # Ok, the Agent gets to attack or to pass the turn.
+        src = self._actionToCountry(action[0])
+        target = self._actionToCountry(action[1])
+        stop_flag = True if action[2] == 1 else False
+
+        # Since this is the AttackEnv, passing the turn is frowned upon:
+        if(stop_flag):
+            return (self._getObs(), INVALID_ACTION, True, info)
+
+        # If not, than he must attack:
+        else:
+
+            # If the attack is valid, we have some conditions to check:
+            if(self.board.attack(src, target) == 0):
+
+                # If we cannot attack anymore, the Agent wins this Env:
+                if(not self.board.player.canAttack()):
+                    return (self._getObs(), REWARD_WIN, True, info)
+
+                # Else, we just reward him adequately:
+                else:
+                    return (self._getObs(), self._getReward(), False, info)
+
+            # If the attack is invalid, just return immediately:
+            else:
+                return (self._getObs(), INVALID_ACTION, True, info)
+
+    # Method to return a random territory owned by the Agent that borders an
+    # enemy territory:
+    def _borderTerritory(self):
+        border_options = [t for t in self.board.players["Agent"].territories
+                          if t.border]
+        return random.choice(border_options)

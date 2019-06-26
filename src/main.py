@@ -4,7 +4,7 @@
 
 # User imports:
 from riskai import StupidAI
-from riskenv import RiskEnv
+from riskenv import RiskEnv, RiskAttackEnv
 from riskplayer import PlayerInfo
 from riskagent import *
 import logging
@@ -15,7 +15,7 @@ logging.disable()
 opponents = [PlayerInfo("Dummy", "AI", StupidAI),
              PlayerInfo("Dummy2", "AI", StupidAI)]
 
-env = FlattenRiskWrapper(RiskEnv(opponents))
+env = FlattenRiskWrapper(RiskAttackEnv(opponents))
 
 agent = DqnAgent(env)
 
