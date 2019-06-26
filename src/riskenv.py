@@ -45,7 +45,7 @@ class RiskEnv(gym.Env):
         self.action_space = spaces.Tuple((
             spaces.Discrete(42),    # Country 1.
             spaces.Discrete(42),    # Country 2.
-            spaces.Discrete(1)      # Flag.
+            spaces.Discrete(2)      # Flag.
         ))
 
         # Observation state:
@@ -215,7 +215,7 @@ class RiskEnv(gym.Env):
                         return (self._getObs(), INVALID_ACTION, True, info)
 
                 else:
-                    self.game_phase == 2
+                    self.game_phase = 2
 
             # Enemy turn phase:
             if(self.game_phase == 2):
