@@ -19,8 +19,10 @@ env = FlattenRiskWrapper(RiskEnv(opponents))
 
 agent = DqnAgent(env)
 
-name = str(input("Nome do modelo: "))
-agent.load(name)
+ans = str(input("Deseja carregar os pesos de um arquivo?(S/n) "))
+if ans.lower() != 'n':
+    name = str(input("Nome do modelo: "))
+    agent.load(name)
 
 ans = str(input("Deseja pular o treinamento?(s/N) "))
 if ans.lower() != 's':
