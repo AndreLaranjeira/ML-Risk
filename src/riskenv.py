@@ -19,8 +19,10 @@ logging.basicConfig()
 # Private variables:
 INVALID_ACTION = -1
 REWARD_LOSE = -1
+REWARD_VALID_ATTACK = 0.5
 REWARD_WIN = 1
-MAX_ARMY_NUM = 120
+ARMY_OBSERVATION_RANGE = 5
+PLAYER_OBSERVATION_RANGE = 2
 
 # Classes:
 
@@ -59,90 +61,90 @@ class RiskEnv(gym.Env):
             spaces.Discrete(3),    # Game state.
             # Countries.
             spaces.Dict({
-                "a": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "b": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "c": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "d": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "e": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "f": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "g": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "h": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "i": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "j": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "k": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "l": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "m": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "n": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "o": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "p": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "q": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "r": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "s": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "t": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "u": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "v": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "w": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "x": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "y": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "z": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "A": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "B": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "C": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "D": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "E": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "F": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "G": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "H": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "I": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "J": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "K": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "L": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "M": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "N": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "O": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM))),
-                "P": spaces.Tuple((spaces.Discrete(self.player_num),
-                                   spaces.Discrete(MAX_ARMY_NUM)))
+                "a": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "b": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "c": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "d": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "e": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "f": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "g": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "h": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "i": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "j": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "k": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "l": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "m": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "n": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "o": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "p": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "q": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "r": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "s": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "t": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "u": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "v": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "w": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "x": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "y": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "z": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "A": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "B": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "C": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "D": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "E": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "F": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "G": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "H": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "I": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "J": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "K": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "L": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "M": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "N": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "O": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE))),
+                "P": spaces.Tuple((spaces.Discrete(PLAYER_OBSERVATION_RANGE),
+                                   spaces.Discrete(ARMY_OBSERVATION_RANGE)))
             })
         ))
 
@@ -328,6 +330,23 @@ class RiskEnv(gym.Env):
     def _actionToCountry(self, action):
         return self.country_list[action]
 
+    ## Determine the army count observation to give the agent:
+    def _armyCountObservation(self, armies):
+        if(armies <= 1):
+            return 0
+
+        elif(armies <= 3):
+            return 1
+
+        elif(armies <= 8):
+            return 2
+
+        elif(armies <= 20):
+            return 3
+
+        else:
+            return 4
+
     ## Determine Agent's next action:
     def _gamePhaseCode(self):
 
@@ -357,14 +376,9 @@ class RiskEnv(gym.Env):
         for t_key, t_name in KEY.items():
             territory = self.board.world.territories[t_name]
             owner_name = territory.owner.name
-
-            if(owner_name == "Agent"):
-                owner_code = 0
-
-            else:
-                owner_code = self.opponent_names.index(owner_name) + 1
-
-            territories[t_key] = (owner_code, territory.forces)
+            owner_code = 1 if(owner_name == "Agent") else 0
+            army_count_code = self._armyCountObservation(territory.forces)
+            territories[t_key] = (owner_code, army_count_code)
 
         return (self._gamePhaseCode(), territories)
 
@@ -421,6 +435,12 @@ class RiskAttackEnv(RiskEnv):
         # Set the game state to the attack phase:
         self.game_phase = 4
 
+        # Set the number of lives the agent has:
+        self.lives = 3
+
+        # Set the control variable to indicate the agent finished:
+        self.done = False
+
         return self._getObs()
 
     # Learning step method:
@@ -437,7 +457,13 @@ class RiskAttackEnv(RiskEnv):
 
         # Since this is the AttackEnv, passing the turn is frowned upon:
         if(stop_flag):
-            return (self._getObs(), INVALID_ACTION, True, info)
+
+            self.lives -= 1         # The agent loses a life.
+
+            if(self.lives == 0):    # If we are out of lives, the episode is
+                self.done = True    # over!
+
+            return (self._getObs(), INVALID_ACTION, self.done, info)
 
         # If not, than he must attack:
         else:
@@ -451,11 +477,17 @@ class RiskAttackEnv(RiskEnv):
 
                 # Else, we just reward him adequately:
                 else:
-                    return (self._getObs(), self._getReward(), False, info)
+                    return (self._getObs(), REWARD_VALID_ATTACK, False, info)
 
             # If the attack is invalid, just return immediately:
             else:
-                return (self._getObs(), INVALID_ACTION, True, info)
+
+                self.lives -= 1         # The agent loses a life.
+
+                if(self.lives == 0):    # If we are out of lives, the episode is
+                    self.done = True    # over!
+
+                return (self._getObs(), INVALID_ACTION, self.done, info)
 
     # Method to return a random territory owned by the Agent that borders an
     # enemy territory:

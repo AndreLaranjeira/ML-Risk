@@ -6,7 +6,7 @@ from keras.layers import Dense, Activation, Flatten
 from keras.optimizers import Adam
 
 from rl.agents.dqn import DQNAgent
-from rl.policy import EpsGreedyQPolicy
+from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
 from rl.memory import SequentialMemory
 from riskenv import *
 import time
@@ -90,8 +90,8 @@ class DqnAgent(object):
     model.add(Activation('softmax'))
     print(model.summary())
     memory = SequentialMemory(limit=50000,window_length=1)
-    # policy = BoltzmannQPolicy()
-    policy = EpsGreedyQPolicy(eps=.2)
+    # policy = EpsGreedyQPolicy(eps=.2)
+    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=.05, nb_steps=10000)
     dqn = DQNAgent(
       model=model,
       nb_actions=nb_actions,
