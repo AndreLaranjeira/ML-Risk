@@ -80,12 +80,6 @@ class DqnAgent(object):
     self.observation_space = env.observation_space
     model = Sequential()
     model.add(Flatten(input_shape=(1,len(self.observation_space))))
-    model.add(Dense(200))
-    model.add(Activation('relu'))
-    model.add(Dense(100))
-    model.add(Activation('relu'))
-    model.add(Dense(42))
-    model.add(Activation('relu'))
     model.add(Dense(nb_actions))
     model.add(Activation('softmax'))
     print(model.summary())

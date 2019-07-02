@@ -436,7 +436,7 @@ class RiskAttackEnv(RiskEnv):
         self.game_phase = 4
 
         # Set the number of lives the agent has:
-        self.lives = 3
+        self.lives = 1
 
         # Set the control variable to indicate the agent finished:
         self.done = False

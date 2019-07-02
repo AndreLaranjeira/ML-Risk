@@ -26,7 +26,7 @@ if ans.lower() != 'n':
 
 ans = str(input("Deseja pular o treinamento?(s/N) "))
 if ans.lower() != 's':
-  agent.fit(env, verbose=2)
+  agent.fit(env, verbose=1)
 
 logging.disable(logging.NOTSET)
 
@@ -34,5 +34,5 @@ agent.test(env, verbose=2)
 
 ans = str(input("Deseja salvar?(S/n) "))
 if ans.lower() != 'n':
-  name = str(input("Nome do modelo: "))
+  name = input("Nome do modelo: ")
   agent.save(name)
