@@ -1,5 +1,7 @@
 import numpy as np
 import gym
+import time
+import json
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
@@ -8,8 +10,8 @@ from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
 from rl.memory import SequentialMemory
+
 from riskenv import *
-import time
 
 class ActionObservationWrapper(gym.Wrapper):
 
@@ -75,6 +77,7 @@ class DqnAgent(object):
   """A Deep Q Learn Agent!"""
   def __init__(self, env:gym.Env):
     self.action_space = env.action_space
+    self.history = None
     nb_actions = self.action_space.n
     print('nb_actions', nb_actions)
     self.observation_space = env.observation_space
@@ -103,9 +106,27 @@ class DqnAgent(object):
       visualize=False,
       verbose=0):
     start = time.time()
-    self.dqn.fit(env, nb_steps=nb_steps, visualize=visualize, verbose=verbose)
+    history = self.dqn.fit(env, nb_steps=nb_steps, visualize=visualize, verbose=verbose)
     end = time.time()
     diff = end-start
+
+    if self.history == None:
+      aux = {}
+      for k, v in history.history.items():
+        if type(v[0]) == np.int64:
+          aux[k] = list(map(lambda i:int(i), v))
+        else:
+          aux[k] = v
+      self.history = aux
+    else:
+      for k, v in self.history.items():
+        aux = []
+        if type(history.history[k][0]) == np.int64:
+          aux = list(map(lambda i:int(i), history.history[k]))
+        else:
+          aux = history.history[k]
+        v.extend(aux)
+
     print('Training took {} minutes and {:.3f} seconds'.format(int(diff//60), diff % 60))
 
   def test(self,
@@ -113,14 +134,29 @@ class DqnAgent(object):
       nb_episodes=5,
       visualize=False,
       verbose=0):
-    self.dqn.test(env, nb_episodes=nb_episodes, visualize=visualize, verbose=verbose)
+    test_history = self.dqn.test(env, nb_episodes=nb_episodes, visualize=visualize, verbose=verbose)
+    self.test_history = test_history.history
+
+  def weights_name(self, name):
+    return 'models/dqn_{}_weights.h5f'.format(name)
+
+  def history_name(self, name):
+    return 'models/dqn_{}_history.json'.format(name)
 
   def save(self, name):
-    self.dqn.save_weights('models/dqn_{}_weights.h5f'.format(name), overwrite=True)
-    for layer in self.dqn.layers:
-      print(layer.get_weights())
+    self.dqn.save_weights(self.weights_name(name), overwrite=True)
+    with open(self.history_name(name), 'w') as history_file:
+      json.dump(self.history,history_file)
+    with open(self.history_name(name+'_test'), 'w') as history_file:
+      json.dump(self.test_history,history_file)
+    # for layer in self.dqn.layers:
+    #   print(layer.get_weights())
 
   def load(self, name):
-    self.dqn.load_weights('models/dqn_{}_weights.h5f'.format(name))
-    for layer in self.dqn.layers:
-      print(layer.get_weights())
+    self.dqn.load_weights(self.weights_name(name))
+    with open(self.history_name(name), 'r') as history_file:
+      self.history = json.load(history_file)
+    with open(self.history_name(name+'_test'), 'r') as history_file:
+      self.test_history = json.load(history_file)
+    # for layer in self.dqn.layers:
+    #   print(layer.get_weights())
