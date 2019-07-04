@@ -4,7 +4,7 @@
 
 # User imports:
 from riskai import StupidAI
-from riskenv import RiskEnv, RiskAttackEnv
+from riskenv import *
 from riskplayer import PlayerInfo
 from riskagent import *
 import logging

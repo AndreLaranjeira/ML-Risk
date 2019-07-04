@@ -347,6 +347,12 @@ class RiskEnv(gym.Env):
         else:
             return 4
 
+    ## Method to return a random border territory owned by the Agent:
+    def _borderTerritory(self):
+        border_options = [t for t in self.board.players["Agent"].territories
+                          if t.border]
+        return random.choice(border_options)
+
     ## Determine Agent's next action:
     def _gamePhaseCode(self):
 
@@ -389,6 +395,102 @@ class RiskEnv(gym.Env):
     ## Check if the Agent is still alive:
     def _isAgentAlive(self):
         return self.board.players["Agent"].alive
+
+    ## Method to return a random territory owned by the Agent:
+    def _randomTerritory(self):
+        options = [t for t in self.board.players["Agent"].territories]
+        return random.choice(options)
+
+## Class to represent the OpenAI gym environment for the reinforcement scenario
+## in a Risk game.
+class RiskReinforcementEnv(RiskEnv):
+
+    # Reset board method:
+    def reset(self):
+        # Create a new board for the players:
+        self.board = RiskBoard()
+
+        # Add the player information for the agent:
+        self.board.addPlayer("Agent", "Agent")
+
+        # Add the player information for the opponents:
+        for opponent in self.opponents:
+            self.board.addPlayer(opponent.name, opponent.type, opponent.ai)
+
+        # Start the game:
+        self.board.start()
+
+        # Make all the players do the initial reinforcement:
+        while(not self.board.finishedInitialPlacement()):
+
+            # Rule for the players that aren't the Agent:
+            if(self.board.player.name != "Agent"):
+                self.board.initialPlacement()
+
+            # Rule for the Agent:
+            else:
+                while(self.board.initial_troops["Agent"] != 0):
+                    self.board.initialPlacement(self._randomTerritory());
+
+        # Wait for the Agent's turn:
+        while(self.board.player.name != "Agent"):
+            self.board.fullTurn()   # Have the next player play.
+
+		# Configure the number of available troops:
+        self.available_troops = self.board.player.reinforcements
+
+		# Set the game phase to the reinforcement phase:
+        self.game_phase = 3
+
+		# Set the control variable to indicate the agent finished:
+        self.done = False
+
+        return self._getObs()
+
+    # Learning step method:
+    def step(self, action):
+        assert self.action_space.contains(action)
+
+        # Set the info return to an empty dictionary (it won't be needed):
+        info = dict()
+
+        # Ok, the Agent gets to reinforce. Use 1 troop!
+        country = self._actionToCountry(action[0])
+
+        # Was the reinforcement valid? If yes:
+        if(self.board.reinforce(country, 1) == 0):
+            self.available_troops -= 1
+
+            # If we are out of reinforcements, this scenario ends!
+            if(self.available_troops == 0):
+                self.done = True
+
+            # Return the board state:
+            return (self._getObs(), self._reinforcementReward(country), self.done, info)
+
+        # If no:
+        else:
+            return (self._getObs(), INVALID_ACTION, True, info)
+
+
+    # Method to determine the reinforcement reward:
+    def _reinforcementReward(self, country):
+        t = self.board.world.territory(country)
+
+        # See how many forces the country had:
+        troop_count = t.forces - 1
+
+        # Find the reward:
+        reward = 1/troop_count      # Less troops means more reward.
+
+        # Correction values:
+        if(reward != 1):
+            reward += 0.25
+
+        if(not t.border):
+            reward -= 0.25          # Border territories take priority.
+
+        return reward
 
 ## Class to represent the OpenAI gym environment for the attack scenario in a
 ## Risk game.
@@ -488,10 +590,3 @@ class RiskAttackEnv(RiskEnv):
                     self.done = True    # over!
 
                 return (self._getObs(), INVALID_ACTION, self.done, info)
-
-    # Method to return a random territory owned by the Agent that borders an
-    # enemy territory:
-    def _borderTerritory(self):
-        border_options = [t for t in self.board.players["Agent"].territories
-                          if t.border]
-        return random.choice(border_options)
