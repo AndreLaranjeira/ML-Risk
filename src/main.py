@@ -17,7 +17,7 @@ logging.disable()
 opponents = [PlayerInfo("Dummy", "AI", StupidAI),
              PlayerInfo("Dummy2", "AI", StupidAI)]
 
-env = FlattenRiskWrapper(RiskAttackEnv(opponents))
+env = FlattenRiskWrapper(RiskEnv(opponents))
 
 agent = DqnAgent(env)
 
@@ -28,8 +28,7 @@ if ans.lower() != 'n':
 
 ans = str(input("Deseja pular o treinamento?(s/N) "))
 if ans.lower() != 's':
-  agent.fit(env, verbose=1,nb_steps=100)
-  agent.fit(env, verbose=1,nb_steps=100)
+  agent.fit(env, verbose=0,nb_steps=50000)
 
 logging.disable(logging.NOTSET)
 
