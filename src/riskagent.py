@@ -83,17 +83,15 @@ class DqnAgent(object):
     self.observation_space = env.observation_space
     model = Sequential()
     model.add(Flatten(input_shape=(1,len(self.observation_space))))
-    model.add(Dense(60, activation='relu'))
     model.add(Dense(nb_actions))
     model.add(Activation('softmax'))
     print(model.summary())
     memory = SequentialMemory(limit=50000,window_length=1)
     # policy = EpsGreedyQPolicy(eps=.2)
-    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.12, value_test=.05, nb_steps=30000)
+    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=.05, nb_steps=15000)
     dqn = DQNAgent(
       model=model,
       nb_actions=nb_actions,
-      gamma=0.95,
       memory=memory,
       nb_steps_warmup=20,
       target_model_update=1e-2,
